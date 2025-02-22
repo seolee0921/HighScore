@@ -1020,7 +1020,7 @@ if __name__ == '__main__':
     Nanum_Light_id = fontDB.addApplicationFont('./font/나눔바른고딕/NanumBarunGothicLight.ttf')
     Nanum_UltraLight_id = fontDB.addApplicationFont('./font/나눔바른고딕/NanumBarunGothicUltraLight.ttf')
     Nanum_Bold_id = fontDB.addApplicationFont('./font/나눔바른고딕/NanumBarunGothicBold.ttf')
-    app.setFont(QFont("NanumBarunGothic"))
+    app.setFont(QFont("나눔바른고딕"))
 
     for i in range(font_count):
         print(fontDB.applicationFontFamilies(i)[0])
