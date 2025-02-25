@@ -14,6 +14,8 @@ import random
 from langdetect import detect
 import string
 import os
+import multiprocessing
+
 
 ## github seolee0921
  
@@ -507,8 +509,7 @@ class BlankTest(QWidget):
                                 }
         """)
 
-        removeButton.setMaximumSize(40, 40)
-        removeButton.setMinimumSize(40,40)
+        removeButton.setFixedSize(40, 40)
 
         sd = QGraphicsDropShadowEffect()
         sd.setOffset(0, 0)
@@ -535,13 +536,14 @@ class BlankTest(QWidget):
             self.hwp.append(Hwp(path, self.file_cnt, [], False, 50, ""))
             self.addListWidget(path)
 
-        duplicate_button = QPushButton("복사")
+        duplicate_button = QPushButton("⧉")
+        duplicate_button.setFixedSize(40, 40)
         duplicate_button.setStyleSheet("""
                                 QPushButton {
                                    text-align: center;
                                    padding-left: 0px;
                                    font-size: 16px;
-                                    margin: 2px;
+                                    border-radius: 15px;
                                 }
                                 QPushButton:hover {
                                    background-color: rgb(251, 251, 251);
@@ -549,6 +551,11 @@ class BlankTest(QWidget):
         """)
         duplicate_button.clicked.connect(lambda: duplicate())
         
+        sd1 = QGraphicsDropShadowEffect()
+        sd1.setOffset(0, 0)
+        sd1.setBlurRadius(10)
+        sd1.setColor(QColor(0, 0, 0, 120))
+        duplicate_button.setGraphicsEffect(sd1)
 
         self.button_layout.addWidget(file_info)
         self.info(button_name)
