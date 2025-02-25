@@ -306,14 +306,41 @@ class BlankTest(QWidget):
         sd1.setColor(QColor(0, 0, 0, 100))
         self.setting_box.setGraphicsEffect(sd1)
 
-        self.layout = QHBoxLayout(self)
+        setting_file_layout = QHBoxLayout()
 
         # self.file_box.setMaximumWidth(1300)
         self.setting_box.setFixedWidth(400)
-        self.layout.addWidget(self.setting_box, 2)
-        self.layout.addWidget(self.file_box, 6)
+        setting_file_layout.addWidget(self.setting_box, 2)
+        setting_file_layout.addWidget(self.file_box, 6)
         
-        self.setLayout(self.layout)
+        layout = QVBoxLayout(self)
+
+        self.extract_button = QPushButton("Create Test")
+        self.extract_button.setFont(QFont("나눔바른고딕", 13, QFont.Bold))
+        self.extract_button.setCheckable(True)
+        self.extract_button.setStyleSheet("""
+                                        QPushButton {
+                                          background-color: white;
+                                          color: rgb(74, 113, 240);
+                                          }
+                                        
+                                        QPushButton:checked {
+                                          background-color: rgb(74, 113, 240);
+                                          color: white;
+                                          }
+                                        """)
+        self.extract_button.setFixedHeight(35)
+        
+        sd3 = QGraphicsDropShadowEffect()
+        sd3.setOffset(5, 5)
+        sd3.setBlurRadius(25)
+        sd3.setColor(QColor(0, 0, 0, 100))
+        self.extract_button.setGraphicsEffect(sd3)
+
+        layout.addLayout(setting_file_layout)        
+        layout.addWidget(self.extract_button)
+
+        self.setLayout(layout)
         
     def resizeEvent(self, event):
         print(f"setting box: {self.setting_box.width()}" )
@@ -332,7 +359,7 @@ class BlankTest(QWidget):
 
 
     def FileBox(self):
-        # 파일 경로 및 버튼을 표시할 스택 위젯젯
+        # 파일 경로 및 버튼을 표시할 스택 위젯
         self.file_box = QStackedWidget()
         self.file_box.setObjectName("file_box")
         self.file_box.setStyleSheet("""background-color: rgb(255, 255, 255);border-radius: 18px;  """)
@@ -403,11 +430,6 @@ class BlankTest(QWidget):
         self.file_group = QButtonGroup()
         self.file_group.setExclusive(True)
 
-        # 파일 여는 버튼
-        # self.file_open_button = QWidget()
-        # self.file_box.addWidget(self.file_open_button)
-
-        self.file_box.setCurrentIndex(0)
 
     def dragEnterEvent(self, event):
         # 드래그된 파일이 수락 가능하면 이벤트를 허용
@@ -419,6 +441,7 @@ class BlankTest(QWidget):
                                                 margin: 10px;
                                                 border-radius: 18px;
                                                 border: 1.2px inset rgba(68, 69, 89, 0.9);
+                                               margin-bottom: 50px;
                                                """)
         else:
             event.ignore()
@@ -426,7 +449,7 @@ class BlankTest(QWidget):
     def dragLeaveEvent(self, event):
         """파일이 창을 벗어나면 원래 색으로 돌아가기"""
         self.drop_background.lower()
-        self.drop_background.setStyleSheet("background-color: rgba(0, 0, 0, 0); margin: 10px; border-radius: 18px;")
+        self.drop_background.setStyleSheet("background-color: rgba(0, 0, 0, 0); margin: 10px; border-radius: 18px; margin-bottom: 50px;")
 
     def dropEvent(self, event):
         # 드롭된 파일 경로를 텍스트로 표시
@@ -448,7 +471,7 @@ class BlankTest(QWidget):
             #     print()
                 
             self.drop_background.lower()
-            self.drop_background.setStyleSheet("background-color: rgba(0, 0, 0, 0); margin: 10px; border-radius: 18px;")
+            self.drop_background.setStyleSheet("background-color: rgba(0, 0, 0, 0); margin: 10px; margin-bottom: 50px; border-radius: 18px;")
             
     def addListWidget(self, path):
         
@@ -880,7 +903,7 @@ class SaveFileDialog(QWidget):
         self.label.setMidLineWidth(280)
         self.label.setAlignment(Qt.AlignCenter)
         self.label.setFont(QFont("나눔바른고딕", 10))
-        self.label.setStyleSheet("border: 1px solid rgb(249, 47, 96); padding: 5px; color: rgba(0, 0, 0, 0.8); border-radius: 3px;")
+        self.label.setStyleSheet("border: 1px solid rgb(215, 215, 216); padding: 5px; color: rgba(0, 0, 0, 0.8); border-radius: 3px;")
 
         # QPushButton: 파일 저장 경로 선택 버튼
         self.button = QPushButton("···", self)
