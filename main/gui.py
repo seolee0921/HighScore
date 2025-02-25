@@ -31,7 +31,7 @@ class Hwp_info:
     process: bool = True
 
 def mainProcess(task: Hwp_info):
-    # print(f"[시작] {os.path.basename(task.path)}")
+    print(f"[시작] {os.path.basename(task.path)}")
 
     location = task.path
     percentage = task.percentage
@@ -261,17 +261,17 @@ def mainProcess(task: Hwp_info):
     try:   
         hwp.save_as(f"{save_path}")
         
-        # if os.path.exists(f"{save_path}"):
-            # print("파일이 성공적으로 저장되었습니다.")
-        # else:
-            # print("파일 저장에 실패했습니다.")
+        if os.path.exists(f"{save_path}"):
+            print("파일이 성공적으로 저장되었습니다.")
+        else:
+            print("파일 저장에 실패했습니다.")
 
     except:
-        # print("Save Error")
+        print("Save Error")
         hwp.set_visible(True)
 
     
-    # print(f"[완료] {os.path.basename(task.path)}")
+    print(f"[완료] {os.path.basename(task.path)}")
     os.chmod(save_path, 0o666)
 
 setting_box_width: int = 0
@@ -368,12 +368,12 @@ class BlankTest(QWidget):
     def make_test(self):
         self.info_check()
 
-        # try:
-        if final_list:
-            self.worker = WorkerThread()
-            self.worker.start()
-        # except:
-        #     # print("func make_test error")
+        try:
+            if final_list:
+                self.worker = WorkerThread()
+                self.worker.start()
+        except:
+            print("func make_test error")
 
     def info_check(self):
         if self.hwp: # 최소 방지
@@ -387,10 +387,10 @@ class BlankTest(QWidget):
                         if file.process:
                             final_list.append(file)
         
-            # print(final_list)
+            print(final_list)
 
-        # else:
-            # print("No exist hwp file")
+        else:
+            print("No exist hwp file")
             
 
     def resizeEvent(self, event):
@@ -513,13 +513,13 @@ class BlankTest(QWidget):
                     self.hwp.append(Hwp_info(path, self.file_cnt, [], False, 50, "", True))
                     self.addListWidget(path)
 
-            # for hwp in self.hwp:
-            #     print(f"path: {hwp.path}")
-            #     print(f"file number: {hwp.file_number}")
-            #     print(f"type: {hwp.pos_type}")
-            #     print(f"first letter: {hwp.full_blank}")
-            #     print(f"percentage: {hwp.percentage}")
-            #     print()
+            for hwp in self.hwp:
+                print(f"path: {hwp.path}")
+                print(f"file number: {hwp.file_number}")
+                print(f"type: {hwp.pos_type}")
+                print(f"first letter: {hwp.full_blank}")
+                print(f"percentage: {hwp.percentage}")
+                print()
                 
             self.drop_background.lower()
             self.drop_background.setStyleSheet("background-color: rgba(0, 0, 0, 0); margin: 10px; margin-bottom: 50px; border-radius: 18px;")
@@ -594,7 +594,7 @@ class BlankTest(QWidget):
         def path_delete(item: QPushButton):  
             # print(self.sender().objectName())
             try:
-                # print(item.objectName()) 
+                print(item.objectName()) 
                 button_to_remove = self.file_path.findChild(QPushButton, self.sender().objectName())       
                 self.file_path_layout.removeWidget(button_to_remove)
                 button_to_remove.deleteLater()
@@ -835,8 +835,8 @@ class BlankTest(QWidget):
                                 change_text.setStyleSheet("margin-left: 5px; background-color: rgba(0,0,0,0); color: rgb(249, 47, 96);")
                             change_text.setText(f"{text}| 앞 글자 힌트 | {self.hwp[int(number) - 1].percentage} | {os.path.basename(self.hwp[int(number) - 1].save_path)}")
         except:
+            print("QLabel is none")
             pass
-            # print("QLabel is none")
      
     def insert_type(self, item: QPushButton):
         # 그림자 효과 추가 (아래쪽에만 적용)
@@ -857,18 +857,18 @@ class BlankTest(QWidget):
         
         self.info(info[1])
 
-    # def path_info(self, num):
-        # print("\n\n\n\n\n\n\n\n=================== file info ===================")
-        # print(f"path: {self.hwp[num].path}")
-        # print(f"file number: {self.hwp[num].file_number}")
-        # print(f"type: {self.hwp[num].pos_type}")
-        # print(f"full blank: {self.hwp[num].full_blank}")
-        # print(f"percentage: {self.hwp[num].percentage}")
-        # print(f"save path: {self.hwp[num].save_path}")
-        # print("=================================================")
+    def path_info(self, num):
+        print("\n\n\n\n\n\n\n\n=================== file info ===================")
+        print(f"path: {self.hwp[num].path}")
+        print(f"file number: {self.hwp[num].file_number}")
+        print(f"type: {self.hwp[num].pos_type}")
+        print(f"full blank: {self.hwp[num].full_blank}")
+        print(f"percentage: {self.hwp[num].percentage}")
+        print(f"save path: {self.hwp[num].save_path}")
+        print("=================================================")
 
     def change_setting_box(self):
-        # self.path_info(int(self.sender().objectName()) - 1)
+        self.path_info(int(self.sender().objectName()) - 1)
         self.setting_box.setCurrentIndex(int(self.sender().objectName()) - 1)
 
 class ToggleSwitch(QWidget):
