@@ -31,7 +31,7 @@ class Hwp_info:
     process: bool = True
 
 def mainProcess(task: Hwp_info):
-    print(f"[시작] {os.path.basename(task.path)}")
+    # print(f"[시작] {os.path.basename(task.path)}")
 
     location = task.path
     percentage = task.percentage
@@ -141,7 +141,7 @@ def mainProcess(task: Hwp_info):
 
                 # 정제된 단어가 뚫기 리스트에 들어가 있을때
                 if refine_word in arr:
-                    print(f"{copy_word} --> fmove: {fmove}, bmove: {bmove}")
+                    """print(f"{copy_word} --> fmove: {fmove}, bmove: {bmove}")"""
 
                     # 커서를 단어 앞으로 이동
                     hwp.MovePrevWord()
@@ -161,7 +161,7 @@ def mainProcess(task: Hwp_info):
                     clipboard.copy(" ")
                     break
                 except clipboard.PyperclipWindowsException:
-                    print("Clipboard access error, retrying...")
+                    # print("Clipboard access error, retrying...")
                     time.sleep(2)
 
     def invisible_sign(f, b, word):
@@ -204,7 +204,7 @@ def mainProcess(task: Hwp_info):
     i = 1
     while hwp.get_into_nth_table(i):
 
-        print(f"{i}번째 표 정보")
+        """print(f"{i}번째 표 정보")"""
 
         pos_cnt = 0 # 총 품사 개수 카운팅
         if SetTableCellfind('A5'): # 표에서 영어 본문 셀 위치
@@ -232,10 +232,10 @@ def mainProcess(task: Hwp_info):
                         for type in pos_type:
                             pos_cnt += len(pos_dict[type])
 
-                        print("\n=========품사=========")
+                        """print("\n=========품사=========")
                         print(f"{pos_type} 개수: ", pos_cnt)
                         for pos, words in pos_dict.items():
-                            print(f"{pos}: {', '.join(words)}")
+                            print(f"{pos}: {', '.join(words)}")"""
 
                         # 지정 품사 목록에서 랜덤으로 단어 추출
                         pos_words = []
@@ -243,34 +243,35 @@ def mainProcess(task: Hwp_info):
                             pos_words += pos_dict[type]
                         blank_list = select_percent(pos_words)
                         
-                        print("\n=========품사 선별=========")
+                        """print("\n=========품사 선별=========")
                         print(f"단어 리스트 : {pos_words}")
                         print(f"선별된 단어 : {blank_list}")
-                        print("빈칸 뚫기 시작")
+                        print("빈칸 뚫기 시작")"""
+
                         hwp.MoveLeft()
                         hwp.MoveRight()
 
                         #빈칸뚫기 시작작
                         blank(blank_list)
 
-                        print("\n")
+                        """print("\n")"""
 
         i += 1
 
     try:   
         hwp.save_as(f"{save_path}")
         
-        if os.path.exists(f"{save_path}"):
-            print("파일이 성공적으로 저장되었습니다.")
-        else:
-            print("파일 저장에 실패했습니다.")
+        # if os.path.exists(f"{save_path}"):
+            # print("파일이 성공적으로 저장되었습니다.")
+        # else:
+            # print("파일 저장에 실패했습니다.")
 
     except:
-        print("Save Error")
+        # print("Save Error")
         hwp.set_visible(True)
 
     
-    print(f"[완료] {os.path.basename(task.path)}")
+    # print(f"[완료] {os.path.basename(task.path)}")
     os.chmod(save_path, 0o666)
 
 setting_box_width: int = 0
@@ -372,12 +373,12 @@ class BlankTest(QWidget):
             self.worker = WorkerThread()
             self.worker.start()
         # except:
-        #     print("func make_test error")
+        #     # print("func make_test error")
 
     def info_check(self):
         if self.hwp: # 최소 방지
             # for file in self.hwp:
-            #     print(file)
+            #     # print(file)
             final_list.clear()
 
             for file in self.hwp:
@@ -386,14 +387,15 @@ class BlankTest(QWidget):
                         if file.process:
                             final_list.append(file)
         
-            print(final_list)
+            # print(final_list)
 
-        else:
-            print("No exist hwp file")
+        # else:
+            # print("No exist hwp file")
+            
 
     def resizeEvent(self, event):
-        print(f"setting box: {self.setting_box.width()}" )
-        print(f"file box: {self.file_box.width()}")
+        # print(f"setting box: {self.setting_box.width()}" )
+        # print(f"file box: {self.file_box.width()}")
         global setting_box_width
         setting_box_width = self.setting_box.width() 
 
@@ -530,7 +532,7 @@ class BlankTest(QWidget):
         parent_button.setObjectName(button_name)
         parent_button.setCheckable(True)
         self.file_group.addButton(parent_button)
-        parent_button.setFont(QFont(QFontDatabase.applicationFontFamilies(Nanum_UltraLight_id)[0]))
+        parent_button.setFont(QFont("나눔바른고딕"))
         parent_button.setStyleSheet("""
                                 QPushButton {
                                     background-color: rgb(248, 248, 254);
@@ -600,7 +602,8 @@ class BlankTest(QWidget):
                 self.hwp[int(button_name) - 1].process = False
 
             except:
-                print("None")
+                pass
+                # print("None")
 
         removeButton.clicked.connect(lambda: path_delete(parent_button))
         
@@ -832,7 +835,8 @@ class BlankTest(QWidget):
                                 change_text.setStyleSheet("margin-left: 5px; background-color: rgba(0,0,0,0); color: rgb(249, 47, 96);")
                             change_text.setText(f"{text}| 앞 글자 힌트 | {self.hwp[int(number) - 1].percentage} | {os.path.basename(self.hwp[int(number) - 1].save_path)}")
         except:
-            print("QLabel is none")
+            pass
+            # print("QLabel is none")
      
     def insert_type(self, item: QPushButton):
         # 그림자 효과 추가 (아래쪽에만 적용)
@@ -853,18 +857,18 @@ class BlankTest(QWidget):
         
         self.info(info[1])
 
-    def path_info(self, num):
-        print("\n\n\n\n\n\n\n\n=================== file info ===================")
-        print(f"path: {self.hwp[num].path}")
-        print(f"file number: {self.hwp[num].file_number}")
-        print(f"type: {self.hwp[num].pos_type}")
-        print(f"full blank: {self.hwp[num].full_blank}")
-        print(f"percentage: {self.hwp[num].percentage}")
-        print(f"save path: {self.hwp[num].save_path}")
-        print("=================================================")
+    # def path_info(self, num):
+        # print("\n\n\n\n\n\n\n\n=================== file info ===================")
+        # print(f"path: {self.hwp[num].path}")
+        # print(f"file number: {self.hwp[num].file_number}")
+        # print(f"type: {self.hwp[num].pos_type}")
+        # print(f"full blank: {self.hwp[num].full_blank}")
+        # print(f"percentage: {self.hwp[num].percentage}")
+        # print(f"save path: {self.hwp[num].save_path}")
+        # print("=================================================")
 
     def change_setting_box(self):
-        self.path_info(int(self.sender().objectName()) - 1)
+        # self.path_info(int(self.sender().objectName()) - 1)
         self.setting_box.setCurrentIndex(int(self.sender().objectName()) - 1)
 
 class ToggleSwitch(QWidget):
@@ -1068,7 +1072,7 @@ class ResizableLabel(QLabel):
     def __init__(self, path, parent=None):
         super().__init__(parent) 
         self.path = path  # 파일 경로 저장
-        print(self.path)
+        # print(self.path)
         self.setAlignment(Qt.AlignCenter)  # 텍스트 중앙 정렬
         self.setTextInteractionFlags(Qt.TextInteractionFlag.NoTextInteraction)  # 텍스트 상호작용 비활성화
         self.update_elided_text()  # 초기 텍스트 설정
@@ -1087,7 +1091,8 @@ class ResizableLabel(QLabel):
             elided_text = font_metrics.elidedText(os.path.basename(self.path), Qt.ElideRight, int(setting_box_width * 0.85))
             self.setText(elided_text)
         except:
-            print("update elided text is error")
+            pass
+            # print("update elided text is error")
 
 if __name__ == '__main__':
     # 애플리케이션 객체 생성
@@ -1095,15 +1100,15 @@ if __name__ == '__main__':
     
     """https://noonnu.cc/font_page/1456"""
 
-    fontDB = QFontDatabase()
-    font_count = 3
-    Nanum_Light_id = fontDB.addApplicationFont('./font/나눔바른고딕/NanumBarunGothicLight.ttf')
-    Nanum_UltraLight_id = fontDB.addApplicationFont('./font/나눔바른고딕/NanumBarunGothicUltraLight.ttf')
-    Nanum_Bold_id = fontDB.addApplicationFont('./font/나눔바른고딕/NanumBarunGothicBold.ttf')
+    # fontDB = QFontDatabase()
+    # font_count = 3
+    # Nanum_Light_id = fontDB.addApplicationFont('./font/나눔바른고딕/NanumBarunGothicLight.ttf')
+    # Nanum_UltraLight_id = fontDB.addApplicationFont('./font/나눔바른고딕/NanumBarunGothicUltraLight.ttf')
+    # Nanum_Bold_id = fontDB.addApplicationFont('./font/나눔바른고딕/NanumBarunGothicBold.ttf')
     app.setFont(QFont("나눔바른고딕"))
 
-    for i in range(font_count):
-        print(fontDB.applicationFontFamilies(i)[0])
+    # for i in range(font_count):
+    #     print(fontDB.applicationFontFamilies(i)[0])
 
     # 윈도우 객체 생성
     window = BlankTest()
