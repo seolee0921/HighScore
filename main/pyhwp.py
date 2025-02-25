@@ -12,7 +12,7 @@ import os
 #################################################################
 
 ## 문서 경로 설정 ##
-location = "D:\HighScore\hwp_resource\둔촌1_교과서_7과.hwp"
+location = "C:\개인폴터\개발\HighScore\hwp resource\♥동북1_교과서_4과_템플릿.hwp"
 
 # 빈칸 뚫고 싶은 품사 지정
 pos_type = ["NOUN", "VERB", "ADJ"]
@@ -23,18 +23,14 @@ full_blank = True
 # 빈칸 빈도
 percentage = 60
 
-# 저장할 파일 이름
-test_name = "둔촌1_교과서_7과 - 빈칸테스트 2단계"
-
 # 저장할 위치
-save_path = "D:\HighScore\exam"
+save_path = "D:\HighScore\exam\둔촌1_교과서_4과 - 빈칸테스트 2단계.hwp"
 
 #################################################################
 
 nlp = spacy.load("en_core_web_sm")
 
-hwp = Hwp()
-hwp.set_visible(False)
+hwp = Hwp(visible=True)
 
 hwp.open(location)
 
@@ -249,9 +245,9 @@ while hwp.get_into_nth_table(i):
     i += 1
 
 try:   
-    hwp.save_as(f"{save_path}\{test_name}.hwp")
+    hwp.save_as(f"{save_path}")
     
-    if os.path.exists(f"{save_path}\{test_name}.hwp"):
+    if os.path.exists(f"{save_path}"):
         print("파일이 성공적으로 저장되었습니다.")
     else:
         print("파일 저장에 실패했습니다.")

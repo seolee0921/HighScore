@@ -2,9 +2,9 @@ import sys
 from PyQt5.QtWidgets import QApplication, QLabel,QWidget, QScrollArea, QFrame, QPushButton, QVBoxLayout, QHBoxLayout, QLineEdit, QTextEdit, QStackedWidget, QListWidget, QListWidgetItem, QButtonGroup, QSlider, QFileDialog
 from PyQt5.QtGui import QIcon, QFont, QFontDatabase, QColor, QFontMetrics, QBrush, QPainter, QPen
 from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QGraphicsDropShadowEffect
-from PyQt5.QtCore import Qt, QRect, QPropertyAnimation, pyqtProperty, pyqtSignal
+from PyQt5.QtCore import Qt, QThread, QPropertyAnimation, pyqtProperty, pyqtSignal
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from pyhwpx import Hwp
 import time
@@ -16,28 +16,38 @@ import string
 import os
 import multiprocessing
 
+from concurrent.futures import ProcessPoolExecutor
 
 ## github seolee0921
  
 @dataclass
-class Hwp:
-    path: str
-    file_number: int
-    pos_type: list[str]
-    full_blank: bool
-    percentage: int
-    save_path: str
+class Hwp_info:
+    path: str = ""
+    file_number: int = 0
+    pos_type: list[str] = field(default_factory=list)
+    full_blank: bool = False
+    percentage: int = 50
+    save_path: str = ""
+    process: bool = True
 
-def mainProcess(location: str, pos_type: list[str], full_blank: bool, percentage: int, save_path: str):
-    
+def mainProcess(task: Hwp_info):
+    print(f"[시작] {os.path.basename(task.path)}")
+
+    location = task.path
+    percentage = task.percentage
+    full_blank = task.full_blank
+    save_path = task.save_path
+    pos_type = task.pos_type
+
     nlp = spacy.load("en_core_web_sm") # 영어 자연어 처리
 
-    hwp = Hwp() # 한글 실행
-    hwp.set_visible(False) # 실행 화면 가리기
 
+    
+    hwp = Hwp(visible=True) # 한글 실행
+    
     hwp.open(location) # 파일 열기
 
-
+    
     # 표 내의 특정 셀 탐색
     def SetTableCellfind(addr):
         init_addr = hwp.KeyIndicator()[-1][1:].split(")")[0]  # 함수를 실행할 때의 주소를 기억
@@ -255,19 +265,30 @@ def mainProcess(location: str, pos_type: list[str], full_blank: bool, percentage
         else:
             print("파일 저장에 실패했습니다.")
 
-        os._exit(0)
-
     except:
         print("Save Error")
         hwp.set_visible(True)
 
-setting_box_width = 0
+    
+    print(f"[완료] {os.path.basename(task.path)}")
+    os.chmod(save_path, 0o666)
+
+setting_box_width: int = 0
+final_list = []
+
+class WorkerThread(QThread):
+    def run(self):
+        with ProcessPoolExecutor(max_workers= len(final_list)) as executor:
+            futures = [executor.submit(mainProcess, file) for file in final_list]
+
+            for future in futures:
+                future.result()
 
 class BlankTest(QWidget):
-    window_size_x = 1280
-    window_size_y = 720
+    window_size_x: int = 1280
+    window_size_y: int = 720
     hwp = []
-    file_cnt = 0
+    file_cnt: int = 0
     def __init__(self):
         super().__init__()
         
@@ -317,14 +338,13 @@ class BlankTest(QWidget):
 
         self.extract_button = QPushButton("Create Test")
         self.extract_button.setFont(QFont("나눔바른고딕", 13, QFont.Bold))
-        self.extract_button.setCheckable(True)
         self.extract_button.setStyleSheet("""
                                         QPushButton {
                                           background-color: white;
                                           color: rgb(74, 113, 240);
                                           }
                                         
-                                        QPushButton:checked {
+                                        QPushButton:pressed {
                                           background-color: rgb(74, 113, 240);
                                           color: white;
                                           }
@@ -337,11 +357,40 @@ class BlankTest(QWidget):
         sd3.setColor(QColor(0, 0, 0, 100))
         self.extract_button.setGraphicsEffect(sd3)
 
+        self.extract_button.pressed.connect(self.make_test)
+
         layout.addLayout(setting_file_layout)        
         layout.addWidget(self.extract_button)
 
         self.setLayout(layout)
+    
+    def make_test(self):
+        self.info_check()
+
+        # try:
+        if final_list:
+            self.worker = WorkerThread()
+            self.worker.start()
+        # except:
+        #     print("func make_test error")
+
+    def info_check(self):
+        if self.hwp: # 최소 방지
+            # for file in self.hwp:
+            #     print(file)
+            final_list.clear()
+
+            for file in self.hwp:
+                if file.pos_type:
+                    if file.save_path:
+                        if file.process:
+                            final_list.append(file)
         
+            print(final_list)
+
+        else:
+            print("No exist hwp file")
+
     def resizeEvent(self, event):
         print(f"setting box: {self.setting_box.width()}" )
         print(f"file box: {self.file_box.width()}")
@@ -459,7 +508,7 @@ class BlankTest(QWidget):
             for path in file_paths:
                 if path[-3:] == "hwp":
                     self.file_cnt += 1
-                    self.hwp.append(Hwp(path, self.file_cnt, [], False, 50, ""))
+                    self.hwp.append(Hwp_info(path, self.file_cnt, [], False, 50, "", True))
                     self.addListWidget(path)
 
             # for hwp in self.hwp:
@@ -548,6 +597,7 @@ class BlankTest(QWidget):
                 self.file_path_layout.removeWidget(button_to_remove)
                 button_to_remove.deleteLater()
                 print(f"Delete file{self.sender().objectName()}")
+                self.hwp[int(button_name) - 1].process = False
 
             except:
                 print("None")
@@ -556,7 +606,7 @@ class BlankTest(QWidget):
         
         def duplicate():
             self.file_cnt += 1
-            self.hwp.append(Hwp(path, self.file_cnt, [], False, 50, ""))
+            self.hwp.append(Hwp_info(path, self.file_cnt, [], False, 50, ""))
             self.addListWidget(path)
 
         duplicate_button = QPushButton("⧉")
