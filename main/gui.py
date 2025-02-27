@@ -1,14 +1,14 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QLabel,QWidget, QScrollArea, QFrame, QPushButton, QVBoxLayout, QHBoxLayout, QLineEdit, QTextEdit, QStackedWidget, QListWidget, QListWidgetItem, QButtonGroup, QSlider, QFileDialog
 from PyQt5.QtGui import QIcon, QFont, QFontDatabase, QColor, QFontMetrics, QBrush, QPainter, QPen
-from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QGraphicsDropShadowEffect
+from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QGraphicsDropShadowEffect, QMessageBox, QProgressDialog
 from PyQt5.QtCore import Qt, QThread, QPropertyAnimation, pyqtProperty, pyqtSignal
 import os
 from dataclasses import dataclass, field
 
 from pyhwpx import Hwp
 import time
-import clipboard
+import clipboard  
 import spacy
 import random
 from langdetect import detect
@@ -16,6 +16,7 @@ import string
 import os
 import multiprocessing
 
+"""병렬처리 -> 직렬처리"""
 from concurrent.futures import ProcessPoolExecutor
 
 ## github seolee0921
@@ -40,10 +41,8 @@ def mainProcess(task: Hwp_info):
     pos_type = task.pos_type
 
     nlp = spacy.load("en_core_web_sm") # 영어 자연어 처리
-
-
     
-    hwp = Hwp(visible=True) # 한글 실행
+    hwp = Hwp(visible= False) # 한글 실행
     
     hwp.open(location) # 파일 열기
 
@@ -156,7 +155,7 @@ def mainProcess(task: Hwp_info):
 
 
             # gui 제작 후 예외처리 작성하기, 너무 많이 불러오면 traceback 발생
-            for _ in range(3):
+            for _ in range(10):
                 try:
                     clipboard.copy(" ")
                     break
@@ -274,16 +273,18 @@ def mainProcess(task: Hwp_info):
     print(f"[완료] {os.path.basename(task.path)}")
     os.chmod(save_path, 0o666)
 
+    hwp.Quit()
+
 setting_box_width: int = 0
 final_list = []
 
-class WorkerThread(QThread):
-    def run(self):
-        with ProcessPoolExecutor(max_workers= len(final_list)) as executor:
-            futures = [executor.submit(mainProcess, file) for file in final_list]
+# class WorkerThread(QThread):
+#     def run(self):
+#         with ProcessPoolExecutor(max_workers= len(final_list)) as executor:
+#             futures = [executor.submit(mainProcess, file) for file in final_list]
 
-            for future in futures:
-                future.result()
+#             for future in futures:
+#                 future.result()
 
 class BlankTest(QWidget):
     window_size_x: int = 1280
@@ -292,7 +293,7 @@ class BlankTest(QWidget):
     file_cnt: int = 0
     def __init__(self):
         super().__init__()
-        
+        self.executor = ProcessPoolExecutor(max_workers=1)
 
         # 윈도우 타이틀 설정
         self.setWindowTitle('Blank Test')
@@ -357,7 +358,8 @@ class BlankTest(QWidget):
         sd3.setBlurRadius(25)
         sd3.setColor(QColor(0, 0, 0, 100))
         self.extract_button.setGraphicsEffect(sd3)
-
+        
+        # self.extract_button.setCheckable(True)
         self.extract_button.pressed.connect(self.make_test)
 
         layout.addLayout(setting_file_layout)        
@@ -370,10 +372,19 @@ class BlankTest(QWidget):
 
         try:
             if final_list:
-                self.worker = WorkerThread()
-                self.worker.start()
+                try:
+                    self.extract_button.setEnabled(False)
+                    self.extract_button.setCursor(Qt.WaitCursor)
+                    
+                    self.executor.map(mainProcess, final_list)
+            
+                    self.extract_button.setCursor(Qt.ArrowCursor)
+                    self.extract_button.setEnabled(True)
+                except:
+                    print("파일 직렬처리 오류")
         except:
             print("func make_test error")
+
 
     def info_check(self):
         if self.hwp: # 최소 방지
@@ -538,7 +549,7 @@ class BlankTest(QWidget):
                                     background-color: rgb(248, 248, 254);
                                     text-align: left;
                                     font-size: 15px;
-                                    padding-left: 10px;
+                                    padding-left: 15px;
                                     border-radius: 15px;
                                 }
                                 QPushButton:hover {
